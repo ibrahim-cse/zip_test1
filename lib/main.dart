@@ -16,27 +16,26 @@ class ZipTest extends StatefulWidget {
 }
 
 class _ZipTestState extends State<ZipTest> {
-  File? imageFile;
+  Future<String> getFilePath() async {
+    Directory directory = await getApplicationDocumentsDirectory();
+    print(directory.path);
+    String dirPath = directory.path;
+    String filePath = '$dirPath/demoTextFile.txt';
 
-  _openFile(BuildContext context) async {
-    var picture = (await getApplicationDocumentsDirectory()).path;
-    print(picture);
+    return filePath;
+  }
 
-    final bytes = File(picture).readAsBytesSync();
-    final archive = ZipDecoder().decodeBytes(bytes);
-    print(bytes);
+  void saveFile() async {
+    File file = File(await getFilePath());
+    file.writeAsString(
+        "This is my demo text that will be saved to : demoTextFile.txt");
+  }
 
-    for (final file in archive) {
-      final filename = file.name;
-      if (file.isFile) {
-        final data = file.content as List<int>;
-        File('out/' + filename)
-          ..createSync(recursive: true)
-          ..writeAsBytesSync(data);
-      } else {
-        Directory('out/' + filename).create(recursive: true);
-      }
-    }
+  void readFile() async {
+    File file = File(await getFilePath());
+    String fileContent = await file.readAsString();
+
+    print('File Content: $fileContent');
   }
 
   @override
@@ -52,11 +51,16 @@ class _ZipTestState extends State<ZipTest> {
             FlatButton(
               color: Colors.blue,
               onPressed: () {
-                _openFile(context);
+                saveFile();
               },
-              child: Text(
-                "Button 1",
-              ),
+              child: const Text("Write"),
+            ),
+            FlatButton(
+              color: Colors.blue,
+              onPressed: () {
+                readFile();
+              },
+              child: const Text("Read"),
             ),
           ],
         ),

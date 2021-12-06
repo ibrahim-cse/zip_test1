@@ -2,7 +2,10 @@
     package="com.example.zip_test1">
    <application
         android:label="zip_test1"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:requestLegacyExternalStorage="true">
+        android:requestLegacyExternalStorage="true"
+
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
