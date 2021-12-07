@@ -2,44 +2,80 @@ import 'package:archive/archive.dart';
 import 'package:archive/archive_io.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:open_file/open_file.dart';
 import 'dart:io';
 
 void main() {
-  runApp(MaterialApp(home: ZipTest()));
+  runApp(MaterialApp(home: ZipMaker()));
 }
 
-class ZipTest extends StatefulWidget {
-  const ZipTest({Key? key}) : super(key: key);
+class ZipMaker extends StatefulWidget {
+  const ZipMaker({Key? key}) : super(key: key);
 
   @override
-  _ZipTestState createState() => _ZipTestState();
+  _ZipMakerState createState() => _ZipMakerState();
 }
 
-class _ZipTestState extends State<ZipTest> {
-  Future<String> getFilePath() async {
-    Directory directory = await getApplicationDocumentsDirectory();
-    print(directory.path);
+class _ZipMakerState extends State<ZipMaker> {
+  void viewFile(PlatformFile file) {
+    OpenFile.open(file.path);
+  }
+
+  writeFile(String text) async {
+    Directory? directory = await getExternalStorageDirectory();
+    print(directory!.path);
     String dirPath = directory.path;
+    final File createFile = File('$dirPath/demoTextFile.txt');
     String filePath = '$dirPath/demoTextFile.txt';
-
-    return filePath;
+    await createFile.writeAsString(text);
   }
 
-  void saveFile() async {
-    File file = File(await getFilePath());
-    file.writeAsString(
-        "This is my demo text that will be saved to : demoTextFile.txt");
-  }
-
-  void readFile() async {
-    File file = File(await getFilePath());
+  readFile() async {
+    Directory? directory = await getExternalStorageDirectory();
+    String dirpath = directory!.path;
+    File file = File('$dirpath/demoTextFile.txt');
     String fileContent = await file.readAsString();
-
     print('File Content: $fileContent');
+  }
+
+  zipMaker() async {
+    Directory? directory = await getExternalStorageDirectory();
+    String dirPath = directory!.path;
+    print(directory.path);
+    var zipEncoder = ZipFileEncoder();
+    zipEncoder.create(directory.path + "/" + 'demoTextFile.zip');
+    zipEncoder.addFile(File('$dirPath/demoTextFile.txt'));
+    zipEncoder.close();
+  }
+
+  zipExtractor() async {
+    Directory? directory = await getExternalStorageDirectory();
+    String dirPath = directory!.path;
+    print(directory.path);
+    List<int> bytes;
+    bytes = File('$dirPath/demoTextFile1.zip').readAsBytesSync();
+
+    Archive archive = ZipDecoder().decodeBytes(bytes);
+
+    for (ArchiveFile file in archive) {
+      String filename = file.name;
+      String decodePath = (dirPath + filename);
+      if (file.isFile) {
+        List<int> data = file.content;
+        File(decodePath)
+          ..createSync(recursive: true)
+          ..writeAsBytesSync(data);
+      } else {
+        Directory(decodePath).create(recursive: true);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    String text;
     return Scaffold(
       appBar: AppBar(
         title: Text("Zip Test"),
@@ -51,7 +87,7 @@ class _ZipTestState extends State<ZipTest> {
             FlatButton(
               color: Colors.blue,
               onPressed: () {
-                saveFile();
+                writeFile(text = 'Ami Kisu pari na');
               },
               child: const Text("Write"),
             ),
@@ -61,6 +97,20 @@ class _ZipTestState extends State<ZipTest> {
                 readFile();
               },
               child: const Text("Read"),
+            ),
+            FlatButton(
+              color: Colors.blue,
+              onPressed: () {
+                zipMaker();
+              },
+              child: const Text("Make Zip"),
+            ),
+            FlatButton(
+              color: Colors.blue,
+              onPressed: () {
+                zipExtractor();
+              },
+              child: const Text("Extract Zip"),
             ),
           ],
         ),
