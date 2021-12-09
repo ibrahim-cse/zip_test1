@@ -54,11 +54,11 @@ class _ZipMakerState extends State<ZipMaker> {
     Directory? directory = await getExternalStorageDirectory();
     String dirPath = directory!.path;
     print(directory.path);
-    List<int> bytes;
-    bytes = File('$dirPath/demoJPGFileLock.zip').readAsBytesSync();
+    List<int> _bytes;
+    _bytes = File('$dirPath/demoJPGFileLock.zip').readAsBytesSync();
 
     final archive = ZipDecoder().decodeBytes(
-      bytes,
+      _bytes,
       verify: true,
       password: "rahad",
     );
