@@ -45,8 +45,8 @@ class _ZipMakerState extends State<ZipMaker> {
     String dirPath = directory!.path;
     print(directory.path);
     var zipEncoder = ZipFileEncoder();
-    zipEncoder.create(directory.path + "/" + 'demoTextFile.zip');
-    zipEncoder.addFile(File('$dirPath/demoTextFile.txt'));
+    zipEncoder.create(directory.path + "/" + 'demoJPGFileLock.zip');
+    zipEncoder.addFile(File('$dirPath/IMG_20211127_093259.jpg'));
     zipEncoder.close();
   }
 
@@ -55,9 +55,13 @@ class _ZipMakerState extends State<ZipMaker> {
     String dirPath = directory!.path;
     print(directory.path);
     List<int> bytes;
-    bytes = File('$dirPath/demoTextFile1.zip').readAsBytesSync();
+    bytes = File('$dirPath/demoJPGFileLock.zip').readAsBytesSync();
 
-    Archive archive = ZipDecoder().decodeBytes(bytes);
+    final archive = ZipDecoder().decodeBytes(
+      bytes,
+      verify: true,
+      password: "rahad",
+    );
 
     for (ArchiveFile file in archive) {
       String filename = file.name;
